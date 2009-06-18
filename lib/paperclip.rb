@@ -44,7 +44,7 @@ end
 # documentation for Paperclip::ClassMethods for more useful information.
 module Paperclip
 
-  VERSION = "2.2.9.2"
+  VERSION = "2.2.9.1"
 
   class << self
     # Provides configurability to Paperclip. There are a number of options available, such as:
@@ -218,7 +218,10 @@ module Paperclip
       attachment_definitions[name] = {:validations => []}.merge(options)
 
       after_save :save_attached_files
-      before_destroy :destroy_attached_files
+      # this doesn't need to prevent the destruction, so do it afterwards.
+      # This way, if a before_destroy callback stops the destruction,
+      # the files won't be removed accidentally.
+      after_destroy :destroy_attached_files
 
       define_callbacks :before_post_process, :after_post_process
       define_callbacks :"before_#{name}_post_process", :"after_#{name}_post_process"
